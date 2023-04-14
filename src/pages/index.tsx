@@ -1,17 +1,16 @@
 import { Inter } from 'next/font/google';
 import { useState } from 'react';
+import ProductCard from '../components/ProductCard';
 
 const inter = Inter({ subsets: ['latin'] });
 
 type Item = {
   title: string;
-  price: number;
+  price: string;
   image: string;
+  description: string;
+  link: string;
 };
-
-interface HomeProps {
-  data: Item[];
-}
 
 export default function Home() {
   const [data, setData] = useState<Item[]>([]);
@@ -24,7 +23,7 @@ export default function Home() {
 
   async function handleSearch() {
     setIsLoading(true);
-    const res = await fetch(`/api/search?q=${inputValue}`);
+    const res = await fetch(`/api/search?searchterm=${inputValue}`);
     const data = await res.json();
     console.log(data);
     setData(data);
@@ -48,10 +47,19 @@ export default function Home() {
         </button>
       </div>
 
-      <div className='container flex flex-col'>
+      <div className='container flex gap-4 flex-wrap'>
         {isLoading && <span>Carregando...</span>}
         {!isLoading &&
-          data.map((item, index) => <span key={index}>{item.title}</span>)}
+          data.map((item, index) => (
+            <ProductCard
+              key={index}
+              description={item.description}
+              imageSrc={item.image}
+              name={item.title}
+              price={item.price}
+              link={item.link}
+            />
+          ))}
       </div>
     </div>
   );
