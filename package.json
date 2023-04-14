@@ -4,7 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "install": "npm run install:client && npm run install:server",
+    "dev": "concurrently \"cd client && npm run dev\" \"cd server && npm run start:dev\"",
+    "build": "npm run build:client && npm run build:server",
+    "build:client": "cd client && npm run build",
+    "build:server": "cd server && npm run build",
+    "start": "cd client && npm run start",
+    "install:client": "cd client && npm install",
+    "install:server": "cd server && npm install"
   },
   "repository": {
     "type": "git",
@@ -16,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/jhonsstn/lexartlabs-fullstack/issues"
   },
-  "homepage": "https://github.com/jhonsstn/lexartlabs-fullstack#readme"
+  "homepage": "https://github.com/jhonsstn/lexartlabs-fullstack#readme",
+  "dependencies": {
+    "concurrently": "^8.0.1"
+  }
 }
