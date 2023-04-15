@@ -1,13 +1,13 @@
+import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-// import axios from 'axios';
-import { BuscapeController } from './buscape/buscape.controller';
-import { BuscapeService } from './buscape/buscape.service';
-// import { AxiosModule } from './utils/axios.module';
-// import { JsdomModule } from './utils/jsdom.module';
+import { SearchController } from './controllers/search/search.controller';
+import { BuscapeService } from './services/buscape/buscape.service';
+import { MeliService } from './services/meli/meli.service';
+import { PrismaService } from './services/prisma/prisma.service';
 
 @Module({
-  imports: [],
-  controllers: [BuscapeController],
-  providers: [BuscapeService],
+  imports: [HttpModule],
+  controllers: [SearchController],
+  providers: [BuscapeService, MeliService, PrismaService],
 })
 export class AppModule {}
