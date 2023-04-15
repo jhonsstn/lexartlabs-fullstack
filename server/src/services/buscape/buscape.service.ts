@@ -61,7 +61,7 @@ export class BuscapeService {
       image,
       price,
       link,
-      description,
+      description: JSON.stringify(description),
     };
   }
 

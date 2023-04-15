@@ -23,10 +23,13 @@ export class MeliService {
   private makeMeliObjects(results: any[]): Product[] {
     return results.map((result: any) => ({
       title: result.title,
-      price: result.original_price,
+      price: result.price.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }),
       image: result.thumbnail,
       link: result.permalink,
-      description: [],
+      description: '',
     }));
   }
 
@@ -43,7 +46,7 @@ export class MeliService {
         );
         return {
           ...product,
-          description: [descriptionResponse.data.plain_text],
+          description: descriptionResponse.data.plain_text,
         };
       }),
     );
