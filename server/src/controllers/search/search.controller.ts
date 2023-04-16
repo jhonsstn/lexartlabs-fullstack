@@ -2,20 +2,22 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { Product } from '../../interfaces/product.interface';
 import { BuscapeService } from '../../services/buscape/buscape.service';
 import { CategoryService } from '../../services/category/category.service';
-import { MeliService } from '../../services/meli/meli.service';
+import { MercadoLivreService } from '../../services/mercadoLivre/mercadoLivre.service';
 import { PrismaService } from '../../services/prisma/prisma.service';
 import { ProductService } from '../../services/product/product.service';
 import { StoreService } from '../../services/store/store.service';
+import { TermService } from '../../services/term/term.service';
 
 @Controller('search')
 export class SearchController {
   constructor(
     private readonly buscapeService: BuscapeService,
-    private readonly meliService: MeliService,
+    private readonly mercadoLivreService: MercadoLivreService,
     private readonly categoryService: CategoryService,
     private readonly storeService: StoreService,
     private readonly prismaService: PrismaService,
     private readonly productService: ProductService,
+    private readonly termService: TermService,
   ) {}
 
   @Get()
@@ -24,34 +26,32 @@ export class SearchController {
     @Query('categoryid') categoryId: string,
     @Query('searchterm') searchTerm: string,
   ): Promise<Product[]> {
-    const params = { categoryId, searchTerm };
+    const params = { categoryId, searchTerm, storeId };
+
+    const existingProducts = await this.productService.getProducts(params);
+
+    if (existingProducts.length > 0) {
+      return existingProducts.map((product) => ({ ...product, font: 'db' }));
+    }
 
     let products = [];
 
     const store = await this.storeService.getStore(storeId);
+    const stores = await this.storeService.getStores();
 
     const storeCategories = await this.categoryService.getCategory(categoryId);
 
-    if (!store || store.store === 'Buscape') {
-      const buscapeData = await this.buscapeService.getData({
-        ...params,
-        buscapeCategory: storeCategories.buscapeCategory,
-        storeId: await this.storeService
-          .getStoreByStoreName('Buscape')
-          .then((res) => res.id),
-      });
-      products = [...products, ...buscapeData];
-    }
-
-    if (!store || store.store === 'Mercado Livre') {
-      const meliData = await this.meliService.getData({
-        ...params,
-        meliCategory: storeCategories.meliCategory,
-        storeId: await this.storeService
-          .getStoreByStoreName('Mercado Livre')
-          .then((res) => res.id),
-      });
-      products = [...products, ...meliData];
+    for (const { camelCaseStore } of stores) {
+      if (!store || store.camelCaseStore === camelCaseStore) {
+        const storeData = await this[`${camelCaseStore}Service`].getData({
+          ...params,
+          [`${camelCaseStore}Category`]:
+            storeCategories[`${camelCaseStore}Category`],
+          storeId: stores.find((item) => item.camelCaseStore === camelCaseStore)
+            .id,
+        });
+        products = [...products, ...storeData];
+      }
     }
 
     const sortedProducts = products.sort((a, b) =>
@@ -63,17 +63,13 @@ export class SearchController {
       categoryId,
     }));
 
-    const createdTerm = await this.prismaService.term.upsert({
-      where: { term: searchTerm },
-      update: {},
-      create: { term: searchTerm },
-    });
+    const createdTerm = await this.termService.createOrGetTerm(searchTerm);
 
     const insertedProducts = await this.productService.createManyProducts(
       productsWithCategory,
       createdTerm,
     );
 
-    return insertedProducts;
+    return insertedProducts.map((product) => ({ ...product, font: 'api' }));
   }
 }

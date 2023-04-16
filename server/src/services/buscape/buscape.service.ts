@@ -54,7 +54,7 @@ export class BuscapeService {
       dom.window.document.querySelectorAll(descriptionSelector),
     ).map((el) => el.textContent);
     return {
-      title,
+      title: title.trim(),
       image,
       price,
       link,

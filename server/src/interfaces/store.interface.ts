@@ -1,3 +1,5 @@
 import { Prisma } from '@prisma/client';
 
-export type Store = Prisma.StoreUncheckedCreateInput;
+export interface Store extends Prisma.StoreUncheckedCreateInput {
+  camelCaseStore?: string;
+}

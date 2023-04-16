@@ -25,11 +25,11 @@ model Product {
 }
 
 model Category {
-  id              String    @id @default(uuid())
-  category        String
-  meliCategory    String
-  buscapeCategory String
-  products        Product[]
+  id                   String    @id @default(uuid())
+  category             String
+  mercadoLivreCategory String
+  buscapeCategory      String
+  products             Product[]
 }
 
 model Store {

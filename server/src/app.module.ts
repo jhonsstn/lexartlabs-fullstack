@@ -5,21 +5,23 @@ import { SearchController } from './controllers/search/search.controller';
 import { StoreController } from './controllers/store/store.controller';
 import { BuscapeService } from './services/buscape/buscape.service';
 import { CategoryService } from './services/category/category.service';
-import { MeliService } from './services/meli/meli.service';
+import { MercadoLivreService } from './services/mercadoLivre/mercadoLivre.service';
 import { PrismaService } from './services/prisma/prisma.service';
 import { ProductService } from './services/product/product.service';
 import { StoreService } from './services/store/store.service';
+import { TermService } from './services/term/term.service';
 
 @Module({
   imports: [HttpModule],
   controllers: [SearchController, CategoryController, StoreController],
   providers: [
     BuscapeService,
-    MeliService,
+    MercadoLivreService,
     PrismaService,
     CategoryService,
     StoreService,
     ProductService,
+    TermService,
   ],
 })
 export class AppModule {}

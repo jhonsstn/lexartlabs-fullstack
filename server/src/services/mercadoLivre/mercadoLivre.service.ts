@@ -4,7 +4,7 @@ import { Product } from '../../interfaces/product.interface';
 import { MeliSearchParams } from '../../interfaces/searchParams.interface';
 
 @Injectable()
-export class MeliService {
+export class MercadoLivreService {
   constructor(private httpService: HttpService) {}
 
   private makeMeliURL(params: MeliSearchParams) {
@@ -21,7 +21,7 @@ export class MeliService {
   private makeMeliObjects(results: any[], storeId: string): Product[] {
     return results.map((result: any) => {
       return {
-        title: result.title,
+        title: result.title.trim(),
         price: result.price.toLocaleString('pt-BR', {
           style: 'currency',
           currency: 'BRL',

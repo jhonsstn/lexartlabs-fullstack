@@ -6,13 +6,13 @@ async function seed() {
   const categories = [
     {
       category: 'Geladeira',
-      meliCategory: 'MLB181294',
+      mercadoLivreCategory: 'MLB181294',
       buscapeCategory: '8',
     },
-    { category: 'TV', meliCategory: 'MLB1002', buscapeCategory: '3' },
+    { category: 'TV', mercadoLivreCategory: 'MLB1002', buscapeCategory: '3' },
     {
       category: 'Mobile',
-      meliCategory: 'MLB1055',
+      mercadoLivreCategory: 'MLB1055',
       buscapeCategory: '7',
     },
   ];
