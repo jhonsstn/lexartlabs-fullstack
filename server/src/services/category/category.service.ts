@@ -10,4 +10,8 @@ export class CategoryService {
       where: { id: categoryId },
     });
   }
+
+  async getCategories() {
+    return this.prismaService.category.findMany();
+  }
 }

@@ -17,6 +17,21 @@ async function seed() {
     },
   ];
 
+  const stores = [
+    {
+      store: 'Buscape',
+    },
+    {
+      store: 'Mercado Livre',
+    },
+  ];
+
+  const existingStores = await prisma.store.findFirst({
+    where: {
+      store: 'Buscape',
+    },
+  });
+
   const existingCategories = await prisma.category.findFirst({
     where: {
       category: 'Geladeira',
@@ -26,6 +41,12 @@ async function seed() {
   if (!existingCategories) {
     await prisma.category.createMany({
       data: categories,
+    });
+  }
+
+  if (!existingStores) {
+    await prisma.store.createMany({
+      data: stores,
     });
   }
 }
