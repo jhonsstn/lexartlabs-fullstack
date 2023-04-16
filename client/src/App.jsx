@@ -1,35 +1,102 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Box, Container, Flex, Input, Select } from '@chakra-ui/react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [stores, setStores] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [form, setForm] = useState([]);
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    axios.get(`${API_URL}/stores`).then((res) => {
+      setStores(res.data);
+    });
+    axios.get(`${API_URL}/categories`).then((res) => {
+      setCategories(res.data);
+    });
+  }, [setStores]);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleClick = () => {
+    axios
+      .get(
+        `${API_URL}/search?searchterm=${form.searchTerm}&categoryid=${form.categoryId}&storeid${form.storeId}`,
+        { params: form }
+      )
+      .then((res) => {
+        setProducts(res.data);
+      });
+  };
 
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+    <Box maxW={1280} mx='auto'>
+      <Flex alignItems='center' my={4}>
+        <Select
+          onChange={handleChange}
+          name='storeId'
+          placeholder='Selecione uma loja'
+          mx={4}
+        >
+          <option value=''>Todas</option>
+          {stores.map((store) => (
+            <option key={store.id} value={store.id}>
+              {store.store}
+            </option>
+          ))}
+        </Select>
+        <Select
+          onChange={handleChange}
+          name='categoryId'
+          placeholder='Selecione uma categoria'
+          mx={4}
+        >
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.category}
+            </option>
+          ))}
+        </Select>
+        <Input
+          onChange={handleChange}
+          name='searchTerm'
+          placeholder='Digite um termo'
+          mx={4}
+        />
+        <Box
+          onClick={handleClick}
+          bg='blue'
+          color='white'
+          px={4}
+          py={2}
+          borderRadius='md'
+        >
+          Buscar
+        </Box>
+      </Flex>
+      <Container maxW='container.xl'>
+        <Flex flexWrap='wrap'>
+          {products.map((product) => (
+            <Box
+              key={product.id}
+              bg='gray.200'
+              w={{ base: '100%', sm: '50%', md: '33%', lg: '25%' }}
+              p={4}
+              borderRadius='md'
+              my={4}
+            >
+              {product.title}
+            </Box>
+          ))}
+        </Flex>
+      </Container>
+    </Box>
+  );
 }
 
-export default App
+export default App;
