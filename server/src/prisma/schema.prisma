@@ -21,7 +21,7 @@ model Product {
   categoryId  String?
   Store       Store?    @relation(fields: [storeId], references: [id])
   storeId     String?
-  term        Term[]
+  terms       Term[]
 }
 
 model Category {
@@ -40,6 +40,6 @@ model Store {
 
 model Term {
   id       String    @id @default(uuid())
-  term     String
+  term     String    @unique
   products Product[]
 }

@@ -4,6 +4,7 @@ import { BuscapeService } from '../../services/buscape/buscape.service';
 import { CategoryService } from '../../services/category/category.service';
 import { MeliService } from '../../services/meli/meli.service';
 import { PrismaService } from '../../services/prisma/prisma.service';
+import { ProductService } from '../../services/product/product.service';
 import { StoreService } from '../../services/store/store.service';
 
 @Controller('search')
@@ -14,6 +15,7 @@ export class SearchController {
     private readonly categoryService: CategoryService,
     private readonly storeService: StoreService,
     private readonly prismaService: PrismaService,
+    private readonly productService: ProductService,
   ) {}
 
   @Get()
@@ -61,11 +63,16 @@ export class SearchController {
       categoryId,
     }));
 
-    const promises = productsWithCategory.map((product) =>
-      this.prismaService.product.create({ data: product }),
-    );
+    const createdTerm = await this.prismaService.term.upsert({
+      where: { term: searchTerm },
+      update: {},
+      create: { term: searchTerm },
+    });
 
-    const insertedProducts = await Promise.all(promises);
+    const insertedProducts = await this.productService.createManyProducts(
+      productsWithCategory,
+      createdTerm,
+    );
 
     return insertedProducts;
   }
