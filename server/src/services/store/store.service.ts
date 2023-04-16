@@ -10,8 +10,15 @@ export class StoreService {
   }
 
   async getStore(storeId: string) {
+    if (!storeId) return null;
     return this.prismaService.store.findUnique({
       where: { id: storeId },
+    });
+  }
+
+  async getStoreByStoreName(store: string) {
+    return this.prismaService.store.findFirst({
+      where: { store },
     });
   }
 }

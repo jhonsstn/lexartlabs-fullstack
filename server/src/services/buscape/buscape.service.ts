@@ -36,7 +36,10 @@ export class BuscapeService {
     return links;
   }
 
-  private async getBuscapeProductData(link: string): Promise<Product> {
+  private async getBuscapeProductData(
+    link: string,
+    storeId: string,
+  ): Promise<Product> {
     const response = await this.httpService.axiosRef.get(link);
     const dom = new JSDOM(response.data);
     const title =
@@ -55,6 +58,7 @@ export class BuscapeService {
       image,
       price,
       link,
+      storeId,
       description: description,
     };
   }
@@ -65,7 +69,7 @@ export class BuscapeService {
     const dom = new JSDOM(response.data);
     const links = this.getBuscapeProductLinks(dom.window.document);
     const products = await Promise.all(
-      links.map((link) => this.getBuscapeProductData(link)),
+      links.map((link) => this.getBuscapeProductData(link, params.storeId)),
     );
     return products;
   }

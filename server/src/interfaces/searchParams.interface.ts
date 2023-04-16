@@ -5,8 +5,10 @@ export interface SearchParams {
 
 export interface BuscapeSearchParams extends SearchParams {
   buscapeCategory?: string;
+  storeId?: string;
 }
 
 export interface MeliSearchParams extends SearchParams {
   meliCategory?: string;
+  storeId?: string;
 }

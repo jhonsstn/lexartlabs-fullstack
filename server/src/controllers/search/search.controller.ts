@@ -4,6 +4,7 @@ import { BuscapeService } from '../../services/buscape/buscape.service';
 import { CategoryService } from '../../services/category/category.service';
 import { MeliService } from '../../services/meli/meli.service';
 import { PrismaService } from '../../services/prisma/prisma.service';
+import { StoreService } from '../../services/store/store.service';
 
 @Controller('search')
 export class SearchController {
@@ -11,37 +12,51 @@ export class SearchController {
     private readonly buscapeService: BuscapeService,
     private readonly meliService: MeliService,
     private readonly categoryService: CategoryService,
+    private readonly storeService: StoreService,
     private readonly prismaService: PrismaService,
   ) {}
 
   @Get()
   async getData(
+    @Query('storeid') storeId: string,
     @Query('categoryid') categoryId: string,
     @Query('searchterm') searchTerm: string,
   ): Promise<Product[]> {
     const params = { categoryId, searchTerm };
 
-    console.log(categoryId);
+    let products = [];
+
+    const store = await this.storeService.getStore(storeId);
 
     const storeCategories = await this.categoryService.getCategory(categoryId);
 
-    console.log(storeCategories);
+    if (!store || store.store === 'Buscape') {
+      const buscapeData = await this.buscapeService.getData({
+        ...params,
+        buscapeCategory: storeCategories.buscapeCategory,
+        storeId: await this.storeService
+          .getStoreByStoreName('Buscape')
+          .then((res) => res.id),
+      });
+      products = [...products, ...buscapeData];
+    }
 
-    const buscapeData = await this.buscapeService.getData({
-      ...params,
-      buscapeCategory: storeCategories.buscapeCategory,
-    });
+    if (!store || store.store === 'Mercado Livre') {
+      const meliData = await this.meliService.getData({
+        ...params,
+        meliCategory: storeCategories.meliCategory,
+        storeId: await this.storeService
+          .getStoreByStoreName('Mercado Livre')
+          .then((res) => res.id),
+      });
+      products = [...products, ...meliData];
+    }
 
-    const meliData = await this.meliService.getData({
-      ...params,
-      meliCategory: storeCategories.meliCategory,
-    });
-
-    const products = [...buscapeData, ...meliData].sort((a, b) =>
+    const sortedProducts = products.sort((a, b) =>
       a.title.localeCompare(b.title),
     );
 
-    const productsWithCategory = products.map((product) => ({
+    const productsWithCategory = sortedProducts.map((product) => ({
       ...product,
       categoryId,
     }));

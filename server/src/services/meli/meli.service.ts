@@ -18,7 +18,7 @@ export class MeliService {
     return searchUrl + '&limit=10';
   }
 
-  private makeMeliObjects(results: any[]): Product[] {
+  private makeMeliObjects(results: any[], storeId: string): Product[] {
     return results.map((result: any) => {
       return {
         title: result.title,
@@ -28,6 +28,7 @@ export class MeliService {
         }),
         image: result.thumbnail,
         link: result.permalink,
+        storeId,
         description: [],
       };
     });
@@ -37,7 +38,10 @@ export class MeliService {
     const searchUrl = this.makeMeliURL(params);
     const response = await this.httpService.axiosRef.get(searchUrl);
 
-    const products = this.makeMeliObjects(response.data.results);
+    const products = this.makeMeliObjects(
+      response.data.results,
+      params.storeId,
+    );
 
     const productsWithDescription = await Promise.all(
       products.map(async (product, index) => {
