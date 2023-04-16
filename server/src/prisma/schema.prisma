@@ -16,21 +16,30 @@ model Product {
   price       String
   image       String
   link        String
-  description String
+  description String[]
   Category    Category? @relation(fields: [categoryId], references: [id])
   categoryId  String?
   Store       Store?    @relation(fields: [storeId], references: [id])
   storeId     String?
+  terms       Term[]
 }
 
 model Category {
-  id       String    @id @default(uuid())
-  category String
-  products Product[]
+  id                   String    @id @default(uuid())
+  category             String
+  mercadoLivreCategory String
+  buscapeCategory      String
+  products             Product[]
 }
 
 model Store {
   id       String    @id @default(uuid())
   store    String
+  products Product[]
+}
+
+model Term {
+  id       String    @id @default(uuid())
+  term     String    @unique
   products Product[]
 }

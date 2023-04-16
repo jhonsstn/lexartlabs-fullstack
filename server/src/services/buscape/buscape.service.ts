@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { JSDOM } from 'jsdom';
 import { Product } from '../../interfaces/product.interface';
+import { BuscapeSearchParams } from '../../interfaces/searchParams.interface';
 
 const BASE_URL = 'https://www.buscape.com.br';
 const linkSelector = '.SearchCard_ProductCard_Inner__7JhKb';
@@ -11,26 +12,19 @@ const priceSelector = 'div.Price_ValueContainer__1U9ia strong:first-child';
 const descriptionSelector =
   'div.AttributeBlock_GroupContent__nhYRo.AttributeBlock_NoBorders__UgSGr p.Text_Text__h_AF6.Text_MobileLabelS___fuke';
 
-export type SearchParams = {
-  category?: string;
-  searchTerm?: string;
-};
-
-const categoryArray = ['8', '3', '7'];
-
 @Injectable()
 export class BuscapeService {
   constructor(private readonly httpService: HttpService) {}
 
-  private makeBuscapeURL(params: SearchParams) {
+  private makeBuscapeURL(params: BuscapeSearchParams) {
     let searchUrl = `https://www.buscape.com.br/search`;
-    if (params.category) {
-      searchUrl += `?refinements%5B0%5D%5Bid%5D=categoryId&refinements%5B0%5D%5Bvalues%5D%5B0%5D=${
-        categoryArray[params.category]
-      }`;
+    if (params.buscapeCategory) {
+      searchUrl += `?refinements%5B0%5D%5Bid%5D=categoryId&refinements%5B0%5D%5Bvalues%5D%5B0%5D=${params.buscapeCategory}`;
     }
     if (params.searchTerm) {
-      searchUrl += `${params.category ? '&' : '?'}q=${params.searchTerm}`;
+      searchUrl += `${params.buscapeCategory ? '&' : '?'}q=${
+        params.searchTerm
+      }`;
     }
     return searchUrl;
   }
@@ -42,7 +36,10 @@ export class BuscapeService {
     return links;
   }
 
-  private async getBuscapeProductData(link: string): Promise<Product> {
+  private async getBuscapeProductData(
+    link: string,
+    storeId: string,
+  ): Promise<Product> {
     const response = await this.httpService.axiosRef.get(link);
     const dom = new JSDOM(response.data);
     const title =
@@ -57,21 +54,22 @@ export class BuscapeService {
       dom.window.document.querySelectorAll(descriptionSelector),
     ).map((el) => el.textContent);
     return {
-      title,
+      title: title.trim(),
       image,
       price,
       link,
-      description: JSON.stringify(description),
+      storeId,
+      description: description,
     };
   }
 
-  async getData(params: SearchParams): Promise<Product[]> {
+  async getData(params: BuscapeSearchParams): Promise<Product[]> {
     const url = this.makeBuscapeURL(params);
     const response = await this.httpService.axiosRef.get(url);
     const dom = new JSDOM(response.data);
     const links = this.getBuscapeProductLinks(dom.window.document);
     const products = await Promise.all(
-      links.map((link) => this.getBuscapeProductData(link)),
+      links.map((link) => this.getBuscapeProductData(link, params.storeId)),
     );
     return products;
   }
