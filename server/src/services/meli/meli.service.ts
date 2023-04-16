@@ -1,39 +1,39 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { Product } from '../../interfaces/product.interface';
-import { SearchParams } from '../../interfaces/searchParams.interface';
-
-const categoryArray = ['MLB181294', 'MLB1002', 'MLB1055'];
+import { MeliSearchParams } from '../../interfaces/searchParams.interface';
 
 @Injectable()
 export class MeliService {
   constructor(private httpService: HttpService) {}
 
-  private makeMeliURL(params: SearchParams) {
+  private makeMeliURL(params: MeliSearchParams) {
     let searchUrl = 'https://api.mercadolibre.com/sites/MLB/search';
-    if (params.category) {
-      searchUrl += `?category=${categoryArray[params.category]}`;
+    if (params.categoryId) {
+      searchUrl += `?category=${params.meliCategory}`;
     }
     if (params.searchTerm) {
-      searchUrl += `${params.category ? '&' : '?'}q=${params.searchTerm}`;
+      searchUrl += `${params.categoryId ? '&' : '?'}q=${params.searchTerm}`;
     }
     return searchUrl + '&limit=10';
   }
 
   private makeMeliObjects(results: any[]): Product[] {
-    return results.map((result: any) => ({
-      title: result.title,
-      price: result.price.toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      }),
-      image: result.thumbnail,
-      link: result.permalink,
-      description: '',
-    }));
+    return results.map((result: any) => {
+      return {
+        title: result.title,
+        price: result.price.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        }),
+        image: result.thumbnail,
+        link: result.permalink,
+        description: [],
+      };
+    });
   }
 
-  async getData(params: SearchParams): Promise<Product[]> {
+  async getData(params: MeliSearchParams): Promise<Product[]> {
     const searchUrl = this.makeMeliURL(params);
     const response = await this.httpService.axiosRef.get(searchUrl);
 
@@ -46,7 +46,7 @@ export class MeliService {
         );
         return {
           ...product,
-          description: descriptionResponse.data.plain_text,
+          description: [descriptionResponse.data.plain_text],
         };
       }),
     );
