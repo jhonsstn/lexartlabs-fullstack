@@ -1,5 +1,6 @@
-import { Prisma } from '@prisma/client';
+import { Product } from '@prisma/client';
 
-export interface Product extends Prisma.ProductUncheckedCreateInput {
-  id?: string;
+export interface ProductInterface extends Product {
+  id: string;
+  description: string[];
 }

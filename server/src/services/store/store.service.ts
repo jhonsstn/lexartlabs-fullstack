@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { Store } from '../../interfaces/store.interface';
+import { StoreInterface } from '../../interfaces/store.interface';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class StoreService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  private convertToCamelCase(stores: Store | Store[]): Store | Store[] {
+  private convertToCamelCase(
+    stores: StoreInterface | StoreInterface[],
+  ): StoreInterface | StoreInterface[] {
     if (Array.isArray(stores)) {
       return stores.map((item) => {
         const words = item.store.toLowerCase().split(' ');
@@ -26,16 +28,16 @@ export class StoreService {
     }
   }
 
-  async getStores(): Promise<Store[]> {
+  async getStores(): Promise<StoreInterface[]> {
     const stores = await this.prismaService.store.findMany();
-    return this.convertToCamelCase(stores) as Store[];
+    return this.convertToCamelCase(stores) as StoreInterface[];
   }
 
-  async getStore(storeId: string): Promise<Store> {
+  async getStore(storeId: string): Promise<StoreInterface> {
     if (!storeId) return null;
     const store = await this.prismaService.store.findUnique({
       where: { id: storeId },
     });
-    return this.convertToCamelCase(store) as Store;
+    return this.convertToCamelCase(store) as StoreInterface;
   }
 }

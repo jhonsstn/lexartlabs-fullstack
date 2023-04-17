@@ -1,5 +1,5 @@
-import { Prisma } from '@prisma/client';
+import { Store } from '@prisma/client';
 
-export interface Store extends Prisma.StoreUncheckedCreateInput {
+export interface StoreInterface extends Store {
   camelCaseStore?: string;
 }

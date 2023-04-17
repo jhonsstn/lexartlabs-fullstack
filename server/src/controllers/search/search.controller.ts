@@ -1,13 +1,15 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { Product } from '../../interfaces/product.interface';
 import { BuscapeService } from '../../services/buscape/buscape.service';
 import { CategoryService } from '../../services/category/category.service';
 import { MercadoLivreService } from '../../services/mercadoLivre/mercadoLivre.service';
-import { PrismaService } from '../../services/prisma/prisma.service';
+// import { PrismaService } from '../../services/prisma/prisma.service';
+import { ApiTags } from '@nestjs/swagger';
+import { ProductDto } from '../../dto/product.dto';
 import { ProductService } from '../../services/product/product.service';
 import { StoreService } from '../../services/store/store.service';
 import { TermService } from '../../services/term/term.service';
 
+@ApiTags('Search')
 @Controller('search')
 export class SearchController {
   constructor(
@@ -15,7 +17,7 @@ export class SearchController {
     private readonly mercadoLivreService: MercadoLivreService,
     private readonly categoryService: CategoryService,
     private readonly storeService: StoreService,
-    private readonly prismaService: PrismaService,
+    // private readonly prismaService: PrismaService,
     private readonly productService: ProductService,
     private readonly termService: TermService,
   ) {}
@@ -25,13 +27,13 @@ export class SearchController {
     @Query('storeid') storeId: string,
     @Query('categoryid') categoryId: string,
     @Query('searchterm') searchTerm: string,
-  ): Promise<Product[]> {
+  ): Promise<ProductDto[]> {
     const params = { categoryId, searchTerm, storeId };
 
     const existingProducts = await this.productService.getProducts(params);
 
     if (existingProducts.length > 0) {
-      return existingProducts.map((product) => ({ ...product, font: 'db' }));
+      return existingProducts.map((product) => ({ ...product }));
     }
 
     let products = [];

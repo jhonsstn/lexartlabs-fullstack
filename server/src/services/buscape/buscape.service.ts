@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { JSDOM } from 'jsdom';
-import { Product } from '../../interfaces/product.interface';
+import { ProductInterface } from '../../interfaces/product.interface';
 import { BuscapeSearchParams } from '../../interfaces/searchParams.interface';
 
 const BASE_URL = 'https://www.buscape.com.br';
@@ -39,7 +39,8 @@ export class BuscapeService {
   private async getBuscapeProductData(
     link: string,
     storeId: string,
-  ): Promise<Product> {
+    categoryId: string,
+  ): Promise<Omit<ProductInterface, 'id'>> {
     const response = await this.httpService.axiosRef.get(link);
     const dom = new JSDOM(response.data);
     const title =
@@ -59,17 +60,26 @@ export class BuscapeService {
       price,
       link,
       storeId,
+      categoryId,
       description: description,
     };
   }
 
-  async getData(params: BuscapeSearchParams): Promise<Product[]> {
+  async getData(
+    params: BuscapeSearchParams,
+  ): Promise<Omit<ProductInterface, 'id'>[]> {
     const url = this.makeBuscapeURL(params);
     const response = await this.httpService.axiosRef.get(url);
     const dom = new JSDOM(response.data);
     const links = this.getBuscapeProductLinks(dom.window.document);
     const products = await Promise.all(
-      links.map((link) => this.getBuscapeProductData(link, params.storeId)),
+      links.map((link) =>
+        this.getBuscapeProductData(
+          link,
+          params.storeId,
+          params.buscapeCategory,
+        ),
+      ),
     );
     return products;
   }

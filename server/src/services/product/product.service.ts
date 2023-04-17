@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Product } from '../../interfaces/product.interface';
+import { ProductInterface } from '../../interfaces/product.interface';
 import { ProductSearchParams } from '../../interfaces/searchParams.interface';
 import { Term } from '../../interfaces/term.interface';
 import { PrismaService } from '../prisma/prisma.service';
@@ -8,7 +8,10 @@ import { PrismaService } from '../prisma/prisma.service';
 export class ProductService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createProduct(product: Product, term: Term): Promise<Product> {
+  async createProduct(
+    product: ProductInterface,
+    term: Term,
+  ): Promise<ProductInterface> {
     return await this.prismaService.product.create({
       data: {
         ...product,
@@ -22,9 +25,9 @@ export class ProductService {
   }
 
   async createManyProducts(
-    products: Product[],
+    products: ProductInterface[],
     term: Term,
-  ): Promise<Product[]> {
+  ): Promise<ProductInterface[]> {
     const promises = products.map((product) => {
       return this.createProduct(product, term);
     });
@@ -36,7 +39,7 @@ export class ProductService {
     categoryId,
     storeId,
     searchTerm,
-  }: ProductSearchParams): Promise<Product[]> {
+  }: ProductSearchParams): Promise<ProductInterface[]> {
     return this.prismaService.product.findMany({
       where: {
         AND: [
