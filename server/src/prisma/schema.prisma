@@ -11,16 +11,16 @@ datasource db {
 }
 
 model Product {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   title       String
   price       String
   image       String
   link        String
   description String[]
-  Category    Category? @relation(fields: [categoryId], references: [id])
-  categoryId  String?
-  Store       Store?    @relation(fields: [storeId], references: [id])
-  storeId     String?
+  Category    Category @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  Store       Store    @relation(fields: [storeId], references: [id])
+  storeId     String
   terms       Term[]
 }
 

@@ -1,13 +1,15 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { Product } from '../../interfaces/product.interface';
+import { Controller, Get, HttpException, Query } from '@nestjs/common';
 import { BuscapeService } from '../../services/buscape/buscape.service';
 import { CategoryService } from '../../services/category/category.service';
 import { MercadoLivreService } from '../../services/mercadoLivre/mercadoLivre.service';
-import { PrismaService } from '../../services/prisma/prisma.service';
+// import { PrismaService } from '../../services/prisma/prisma.service';
+import { ApiTags } from '@nestjs/swagger';
+import { ProductDto } from '../../dto/product.dto';
 import { ProductService } from '../../services/product/product.service';
 import { StoreService } from '../../services/store/store.service';
 import { TermService } from '../../services/term/term.service';
 
+@ApiTags('Search')
 @Controller('search')
 export class SearchController {
   constructor(
@@ -15,7 +17,7 @@ export class SearchController {
     private readonly mercadoLivreService: MercadoLivreService,
     private readonly categoryService: CategoryService,
     private readonly storeService: StoreService,
-    private readonly prismaService: PrismaService,
+    // private readonly prismaService: PrismaService,
     private readonly productService: ProductService,
     private readonly termService: TermService,
   ) {}
@@ -25,36 +27,72 @@ export class SearchController {
     @Query('storeid') storeId: string,
     @Query('categoryid') categoryId: string,
     @Query('searchterm') searchTerm: string,
-  ): Promise<Product[]> {
+  ): Promise<ProductDto[]> {
     const params = { categoryId, searchTerm, storeId };
+
+    if (!categoryId || Array.isArray(params.categoryId)) {
+      throw new HttpException(
+        'Bad Request: Category missing or more than one',
+        400,
+      );
+    }
+
+    if (Array.isArray(params.storeId)) {
+      throw new HttpException('Bad Request: More than one store', 400);
+    }
+
+    if (!params.searchTerm || Array.isArray(params.searchTerm)) {
+      throw new HttpException(
+        'Bad Request: Category missing or more than one',
+        400,
+      );
+    }
 
     const existingProducts = await this.productService.getProducts(params);
 
     if (existingProducts.length > 0) {
-      return existingProducts.map((product) => ({ ...product, font: 'db' }));
+      return existingProducts.map((product) => ({ ...product }));
     }
 
     let products = [];
 
     const store = await this.storeService.getStore(storeId);
-    console.log(store);
-    const stores = await this.storeService.getStores();
-    console.log(stores);
 
     const storeCategories = await this.categoryService.getCategory(categoryId);
-    console.log(storeCategories);
 
-    for (const { camelCaseStore } of stores) {
-      if (!store || store.camelCaseStore === camelCaseStore) {
-        const storeData = await this[`${camelCaseStore}Service`].getData({
-          ...params,
-          [`${camelCaseStore}Category`]:
-            storeCategories[`${camelCaseStore}Category`],
-          storeId: stores.find((item) => item.camelCaseStore === camelCaseStore)
-            .id,
-        });
-        products = [...products, ...storeData];
-      }
+    // Comentei o codigo abaixo pois apesar de permitir a busca em deiversas lojas, para o contexto atual do projeto, não é necessário e fica menos claro.
+
+    // const stores = await this.storeService.getStores();
+
+    // for (const { camelCaseStore } of stores) {
+    //   if (!store || store.camelCaseStore === camelCaseStore) {
+    //     const storeData = await this[`${camelCaseStore}Service`].getData({
+    //       ...params,
+    //       [`${camelCaseStore}Category`]:
+    //         storeCategories[`${camelCaseStore}Category`],
+    //       storeId: stores.find((item) => item.camelCaseStore === camelCaseStore)
+    //         .id,
+    //     });
+    //     products = [...products, ...storeData];
+    //   }
+    // }
+
+    // Codigo acima substitui os ifs abaixo que são mais claros, mas não permitem a busca em diversas lojas.
+
+    if (!store || store.camelCaseStore === 'buscape') {
+      const buscapeData = await this.buscapeService.getData({
+        ...params,
+        buscapeCategory: storeCategories.buscapeCategory,
+      });
+      products = [...products, ...buscapeData];
+    }
+
+    if (!store || store.camelCaseStore === 'mercadoLivre') {
+      const mercadoLivreData = await this.mercadoLivreService.getData({
+        ...params,
+        mercadoLivreCategory: storeCategories.mercadoLivreCategory,
+      });
+      products = [...products, ...mercadoLivreData];
     }
 
     const sortedProducts = products.sort((a, b) =>
