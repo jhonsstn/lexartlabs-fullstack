@@ -37,9 +37,12 @@ export class SearchController {
     let products = [];
 
     const store = await this.storeService.getStore(storeId);
+    console.log(store);
     const stores = await this.storeService.getStores();
+    console.log(stores);
 
     const storeCategories = await this.categoryService.getCategory(categoryId);
+    console.log(storeCategories);
 
     for (const { camelCaseStore } of stores) {
       if (!store || store.camelCaseStore === camelCaseStore) {

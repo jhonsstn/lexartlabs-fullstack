@@ -8,8 +8,8 @@ export interface BuscapeSearchParams extends SearchParams {
   storeId?: string;
 }
 
-export interface MeliSearchParams extends SearchParams {
-  meliCategory?: string;
+export interface MercadoLivreSearchParams extends SearchParams {
+  mercadoLivreCategory?: string;
   storeId?: string;
 }
 
