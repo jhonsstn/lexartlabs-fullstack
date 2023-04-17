@@ -1,19 +1,22 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { Product } from '../../interfaces/product.interface';
-import { MeliSearchParams } from '../../interfaces/searchParams.interface';
+import { MercadoLivreSearchParams } from '../../interfaces/searchParams.interface';
 
 @Injectable()
 export class MercadoLivreService {
   constructor(private httpService: HttpService) {}
 
-  private makeMeliURL(params: MeliSearchParams) {
+  private makeMeliURL(params: MercadoLivreSearchParams) {
+    console.log(params);
     let searchUrl = 'https://api.mercadolibre.com/sites/MLB/search';
     if (params.categoryId) {
-      searchUrl += `?category=${params.meliCategory}`;
+      searchUrl += `?category=${params.mercadoLivreCategory}`;
     }
     if (params.searchTerm) {
-      searchUrl += `${params.categoryId ? '&' : '?'}q=${params.searchTerm}`;
+      searchUrl += `${params.mercadoLivreCategory ? '&' : '?'}q=${
+        params.searchTerm
+      }`;
     }
     return searchUrl + '&limit=10';
   }
@@ -34,7 +37,7 @@ export class MercadoLivreService {
     });
   }
 
-  async getData(params: MeliSearchParams): Promise<Product[]> {
+  async getData(params: MercadoLivreSearchParams): Promise<Product[]> {
     const searchUrl = this.makeMeliURL(params);
     const response = await this.httpService.axiosRef.get(searchUrl);
 
