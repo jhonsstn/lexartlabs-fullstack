@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, HttpException, Query } from '@nestjs/common';
 import { BuscapeService } from '../../services/buscape/buscape.service';
 import { CategoryService } from '../../services/category/category.service';
 import { MercadoLivreService } from '../../services/mercadoLivre/mercadoLivre.service';
@@ -29,6 +29,24 @@ export class SearchController {
     @Query('searchterm') searchTerm: string,
   ): Promise<ProductDto[]> {
     const params = { categoryId, searchTerm, storeId };
+
+    if (!categoryId || Array.isArray(params.categoryId)) {
+      throw new HttpException(
+        'Bad Request: Category missing or more than one',
+        400,
+      );
+    }
+
+    if (Array.isArray(params.storeId)) {
+      throw new HttpException('Bad Request: More than one store', 400);
+    }
+
+    if (!params.searchTerm || Array.isArray(params.searchTerm)) {
+      throw new HttpException(
+        'Bad Request: Category missing or more than one',
+        400,
+      );
+    }
 
     const existingProducts = await this.productService.getProducts(params);
 

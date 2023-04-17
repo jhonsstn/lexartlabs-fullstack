@@ -1,6 +1,7 @@
 export interface SearchParams {
   categoryId?: string;
   searchTerm?: string;
+  storeId?: string;
 }
 
 export interface BuscapeSearchParams extends SearchParams {
