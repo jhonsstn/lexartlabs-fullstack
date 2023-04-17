@@ -11,5 +11,5 @@ The project comprises a front-end and back-end that aim to conduct searches on w
   $ npm install
 
   #development
-  npm run dev
+  $ npm run dev
 ```
