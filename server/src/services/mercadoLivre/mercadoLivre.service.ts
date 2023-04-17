@@ -8,7 +8,6 @@ export class MercadoLivreService {
   constructor(private httpService: HttpService) {}
 
   private makeMeliURL(params: MercadoLivreSearchParams) {
-    console.log(params);
     let searchUrl = 'https://api.mercadolibre.com/sites/MLB/search';
     if (params.categoryId) {
       searchUrl += `?category=${params.mercadoLivreCategory}`;

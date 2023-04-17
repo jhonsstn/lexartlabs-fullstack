@@ -37,24 +37,42 @@ export class SearchController {
     let products = [];
 
     const store = await this.storeService.getStore(storeId);
-    console.log(store);
-    const stores = await this.storeService.getStores();
-    console.log(stores);
 
     const storeCategories = await this.categoryService.getCategory(categoryId);
-    console.log(storeCategories);
 
-    for (const { camelCaseStore } of stores) {
-      if (!store || store.camelCaseStore === camelCaseStore) {
-        const storeData = await this[`${camelCaseStore}Service`].getData({
-          ...params,
-          [`${camelCaseStore}Category`]:
-            storeCategories[`${camelCaseStore}Category`],
-          storeId: stores.find((item) => item.camelCaseStore === camelCaseStore)
-            .id,
-        });
-        products = [...products, ...storeData];
-      }
+    // Comentei o codigo abaixo pois apesar de permitir a busca em deiversas lojas, para o contexto atual do projeto, não é necessário e fica menos claro.
+
+    // const stores = await this.storeService.getStores();
+
+    // for (const { camelCaseStore } of stores) {
+    //   if (!store || store.camelCaseStore === camelCaseStore) {
+    //     const storeData = await this[`${camelCaseStore}Service`].getData({
+    //       ...params,
+    //       [`${camelCaseStore}Category`]:
+    //         storeCategories[`${camelCaseStore}Category`],
+    //       storeId: stores.find((item) => item.camelCaseStore === camelCaseStore)
+    //         .id,
+    //     });
+    //     products = [...products, ...storeData];
+    //   }
+    // }
+
+    // Codigo acima substitui os ifs abaixo que são mais claros, mas não permitem a busca em diversas lojas.
+
+    if (!store || store.camelCaseStore === 'buscape') {
+      const buscapeData = await this.buscapeService.getData({
+        ...params,
+        buscapeCategory: storeCategories.buscapeCategory,
+      });
+      products = [...products, ...buscapeData];
+    }
+
+    if (!store || store.camelCaseStore === 'mercadoLivre') {
+      const mercadoLivreData = await this.mercadoLivreService.getData({
+        ...params,
+        mercadoLivreCategory: storeCategories.mercadoLivreCategory,
+      });
+      products = [...products, ...mercadoLivreData];
     }
 
     const sortedProducts = products.sort((a, b) =>
