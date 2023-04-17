@@ -10,6 +10,6 @@ The project comprises a front-end and back-end that aim to conduct searches on w
   # install both client and server
   $ npm install
 
-  #development
+  # development
   $ npm run dev
 ```
