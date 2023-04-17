@@ -138,12 +138,7 @@ function App() {
               flexDirection='row'
             >
               <Box w='33.33%' h='100%' mr={4}>
-                <Image
-                  src={product.image}
-                  h='100%'
-                  w='100%'
-                  objectFit='cover'
-                />
+                <Image src={product.image} objectFit='cover' />
               </Box>
               <Box w='66.67%' h='100%' display='flex' flexDirection='column'>
                 <Box as='h2' fontSize='sm' fontWeight='bold' mb={2}>
