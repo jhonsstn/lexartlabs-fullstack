@@ -21,8 +21,7 @@
     "prisma:prod": "npm run prisma:migrate && npm run prisma:generate && npm run prisma:seed",
     "prisma:migrate": "npx prisma migrate deploy --schema src/prisma/schema.prisma",
     "prisma:generate": "npx prisma generate --schema src/prisma/schema.prisma",
-    "prisma:seed": "npx prisma db seed",
-    "heroku-postbuild": "npm install --only=dev"
+    "prisma:seed": "npx prisma db seed"
   },
   "dependencies": {
     "@nestjs/axios": "^2.0.0",
