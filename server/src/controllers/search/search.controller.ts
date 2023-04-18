@@ -51,7 +51,7 @@ export class SearchController {
     const existingProducts = await this.productService.getProducts(params);
 
     if (existingProducts.length > 0) {
-      return existingProducts.map((product) => ({ ...product }));
+      return existingProducts.map((product) => ({ ...product, font: 'db' }));
     }
 
     let products = [];

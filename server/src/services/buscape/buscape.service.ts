@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { JSDOM } from 'jsdom';
 import { ProductInterface } from '../../interfaces/product.interface';
 import { BuscapeSearchParams } from '../../interfaces/searchParams.interface';
+import { StoreService } from '../store/store.service';
 
 const BASE_URL = 'https://www.buscape.com.br';
 const linkSelector = '.SearchCard_ProductCard_Inner__7JhKb';
@@ -14,7 +15,10 @@ const descriptionSelector =
 
 @Injectable()
 export class BuscapeService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly storeService: StoreService,
+  ) {}
 
   private makeBuscapeURL(params: BuscapeSearchParams) {
     let searchUrl = `https://www.buscape.com.br/search`;
@@ -59,7 +63,8 @@ export class BuscapeService {
       image,
       price,
       link,
-      storeId,
+      storeId:
+        storeId || (await this.storeService.getStoreByStoreName('Buscape')).id,
       categoryId,
       description: description,
     };

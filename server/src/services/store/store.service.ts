@@ -40,4 +40,10 @@ export class StoreService {
     });
     return this.convertToCamelCase(store) as StoreInterface;
   }
+
+  async getStoreByStoreName(store: string) {
+    return this.prismaService.store.findFirst({
+      where: { store },
+    });
+  }
 }
