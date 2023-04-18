@@ -2,10 +2,14 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ProductInterface } from '../../interfaces/product.interface';
 import { MercadoLivreSearchParams } from '../../interfaces/searchParams.interface';
+import { StoreService } from '../store/store.service';
 
 @Injectable()
 export class MercadoLivreService {
-  constructor(private httpService: HttpService) {}
+  constructor(
+    private httpService: HttpService,
+    private readonly storeService: StoreService,
+  ) {}
 
   private makeMeliURL(params: MercadoLivreSearchParams) {
     let searchUrl = 'https://api.mercadolibre.com/sites/MLB/search';
@@ -20,12 +24,12 @@ export class MercadoLivreService {
     return searchUrl + '&limit=10';
   }
 
-  private makeMeliObjects(
+  private async makeMeliObjects(
     results: any[],
     storeId: string,
     categoryId: string,
-  ): Omit<ProductInterface, 'id'>[] {
-    return results.map((result: any) => {
+  ): Promise<Omit<ProductInterface, 'id'>[]> {
+    const promises = results.map(async (result: any) => {
       return {
         title: result.title.trim(),
         price: result.price.toLocaleString('pt-BR', {
@@ -34,11 +38,14 @@ export class MercadoLivreService {
         }),
         image: result.thumbnail,
         link: result.permalink,
-        storeId,
+        storeId:
+          storeId ||
+          (await this.storeService.getStoreByStoreName('Mercado Livre')).id,
         categoryId,
         description: [],
       };
     });
+    return await Promise.all(promises);
   }
 
   async getData(
@@ -47,7 +54,7 @@ export class MercadoLivreService {
     const searchUrl = this.makeMeliURL(params);
     const response = await this.httpService.axiosRef.get(searchUrl);
 
-    const products = this.makeMeliObjects(
+    const products = await this.makeMeliObjects(
       response.data.results,
       params.storeId,
       params.mercadoLivreCategory,

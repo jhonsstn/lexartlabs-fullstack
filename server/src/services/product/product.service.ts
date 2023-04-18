@@ -44,7 +44,7 @@ export class ProductService {
       where: {
         AND: [
           { categoryId },
-          { storeId },
+          storeId ? { storeId } : null,
           { terms: { some: { term: searchTerm } } },
         ],
       },
