@@ -95,11 +95,7 @@ export class SearchController {
       products = [...products, ...mercadoLivreData];
     }
 
-    const sortedProducts = products.sort((a, b) =>
-      a.title.localeCompare(b.title),
-    );
-
-    const productsWithCategory = sortedProducts.map((product) => ({
+    const productsWithCategory = products.map((product) => ({
       ...product,
       categoryId,
     }));

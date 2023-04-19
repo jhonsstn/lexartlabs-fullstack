@@ -32,7 +32,10 @@ export class ProductService {
       return this.createProduct(product, term);
     });
     const createdProducts = await Promise.all(promises);
-    return createdProducts;
+    const sortedProducts = createdProducts.sort((a, b) =>
+      a.title.localeCompare(b.title),
+    );
+    return sortedProducts;
   }
 
   async getProducts({
