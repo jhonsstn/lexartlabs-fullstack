@@ -45,7 +45,16 @@ export class ProductService {
         AND: [
           { categoryId },
           storeId ? { storeId } : null,
-          { terms: { some: { term: searchTerm } } },
+          {
+            terms: {
+              some: {
+                term: {
+                  equals: searchTerm,
+                  mode: 'insensitive',
+                },
+              },
+            },
+          },
         ],
       },
       orderBy: { title: 'asc' },
